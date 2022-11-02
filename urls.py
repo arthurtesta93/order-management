@@ -19,6 +19,7 @@ from rest_framework import routers
 from api import views
 
 import modules.core.web.urls
+import modules.order_management.web.urls
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -31,6 +32,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path(r"admin/", admin.site.urls),
     path(r"api/core/", include(modules.core.web.urls.router.urls)),
+    path(r"api/order-management", include(modules.order_management.web.urls.router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class OrderManagementCoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'order_management'
+    name = 'modules.order_management'

@@ -35,7 +35,7 @@ class Transaction(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.name} (kind={self.kind}, id={self.id})"
+        return f"(kind={self.kind}, id={self.id})"
 
 
 class OrganizationKind(str, Enum):

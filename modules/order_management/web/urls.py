@@ -1,7 +1,7 @@
-from django.urls import path
 
-from modules.order_management.web import views
+from ..web import views
+from rest_framework import routers
 
-urlpatterns = [
-    path('', views.index, name='index'),
-]
+router = routers.DefaultRouter()
+router.register(r"purchase_order", views.PurchaseOrderViewSet)
+router.register(r"item", views.ItemViewSet)
