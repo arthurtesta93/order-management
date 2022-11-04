@@ -13,8 +13,8 @@ from ..models.abstractions import BaseModel
 class TransactionalKind(str, Enum):
     """Defines the transaction type"""
 
-    ORDER = "ORDER"
-    ITEM = "ITEM"
+    INBOUND = "INBOUND"
+    OUTBOUND = "OUTBOUND"
 
     @classmethod
     def choices(cls):
@@ -30,7 +30,7 @@ class Transaction(BaseModel):
         choices=TransactionalKind.choices(),
         null=False,
         blank=True,
-        default=TransactionalKind.ORDER.value,
+        default=TransactionalKind.OUTBOUND.value,
         verbose_name=_("Kind"),
     )
 

@@ -29,8 +29,8 @@ class ShippingOrder(Transaction):
     mode = OrderKind.choices()
     date_received = models.DateTimeField(auto_now_add=True)
     last_update = models.DateTimeField(auto_now_add=True)
-    pickup_date = models.DateTimeField(auto_now_add=True)
-    delivery_date = models.DateTimeField(auto_now_add=True)
+    pickup_date = models.DateTimeField(auto_now_add=False)
+    delivery_date = models.DateTimeField(auto_now_add=False)
 
 
 class PurchaseOrder(Transaction):
@@ -38,7 +38,8 @@ class PurchaseOrder(Transaction):
      and a seller, for exchanged goods and services. It may belong to
      one or zero ShippingOrder. It may contain one or many Items """
 
-    shipping_order_id = models.ForeignKey(ShippingOrder, related_name="items", on_delete=models.SET("N/A"))
+    shipping_order_id = models.ForeignKey(ShippingOrder, related_name="+", on_delete=models.SET("N/A"))
+    # TODO add params from serializer
 
     @property
     def total_items(self):
@@ -72,7 +73,7 @@ class Item(models.Model):
 
     purchase_order_id = models.ForeignKey(PurchaseOrder, related_name="items", on_delete=models.SET("N/A"))
     commodity = models.CharField(max_length=128)
-    count = models.IntegerField
+    count = models.IntegerField # TODO add params on these
     package_type = models.CharField(max_length=2, choices=PACKAGE_TYPE)
     weight = models.IntegerField
     weight_unit = models.CharField(max_length=2, choices=WEIGHT_UNIT)
@@ -80,3 +81,7 @@ class Item(models.Model):
     width = models.IntegerField
     length = models.IntegerField
     dimension_unit = models.CharField(max_length=2, choices=DIMENSION_UNIT)
+
+    def __str__(self):
+        return f"{self.commodity} (purchase_order={self.purchase_order_id}, id={self.id})"
+
