@@ -1,10 +1,8 @@
 from decimal import Decimal
 
 from django.db import models
-from enum import Enum, unique
 
-from modules.core.models.definitions import Transaction
-from ..utils import Validators
+from modules.core.models.definitions import Transaction, Organization, Item
 
 # Create your models here.
 
@@ -38,7 +36,6 @@ class PurchaseOrder(Transaction):
      one or zero ShippingOrder. It may contain one or many Items """
 
     shipping_order_id = models.ForeignKey(ShippingOrder, on_delete=models.SET("N/A"))
-
     # TODO add params from serializer
 
     @property
@@ -49,42 +46,8 @@ class PurchaseOrder(Transaction):
         return total
 
 
-# maybe Item should be an abstract definition for the general concept
-# of an Item, and here we should have a OneToOne "ItemInstance" class with it's own ID
-
-class Item(models.Model):
-    """An Item represents a package of a specific commodity to be transported within
-        a purchase order. It must belong to one and only one purchase order. """
-
-    PACKAGE_TYPE = (
-        ('PL', 'Pallet'),
-        ('BX', 'Box'),
-        ('BU', 'Bulk'),
-    )
-    WEIGHT_UNIT = (
-        ('LB', 'POUNDS'),
-        ('KG', 'KILOGRAMS'),
-        ('OZ', 'OUNCE')
-    )
-    DIMENSION_UNIT = (
-        ('IN', 'INCHES'),
-        ('FT', 'FEET'),
-        ('YD', 'YARD'),
-        ('MT', 'METER'),
-        ('CM', 'CENTIMETER')
-    )
-
+class ItemInstance(Item):
     purchase_order_id = models.ForeignKey(PurchaseOrder, related_name="items", on_delete=models.SET("N/A"))
-    commodity = models.CharField(max_length=128)
-    count = models.CharField(validators=[Validators.zero_not_first_integer], max_length=7, default=0)
-    package_type = models.CharField(max_length=2, choices=PACKAGE_TYPE)
-    weight = models.IntegerField(validators=[Validators.validate_comma_separated_integer], default=0)
-    weight_unit = models.CharField(max_length=2, choices=WEIGHT_UNIT)
-    height = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
-    width = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
-    length = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
-    dimension_unit = models.CharField(max_length=2, choices=DIMENSION_UNIT)
-
-    def __str__(self):
-        return f"{self.commodity} (purchase_order={self.purchase_order_id}, id={self.id})"
+    serial_number = models.CharField(max_length=50, null=True, default=None)
+    special_instructions = models.CharField(max_length=128, null=True, default=None)
 

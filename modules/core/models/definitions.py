@@ -5,6 +5,7 @@ from enum import Enum, unique
 from ..models.abstractions import BaseModel
 
 # Create your models here.
+from ...order_management.utils import Validators
 
 """Higher level business-related abstractions"""
 
@@ -75,3 +76,43 @@ class Organization(BaseModel):
 
     def __str__(self):
         return f"{self.name} (kind={self.kind}, id={self.id})"
+
+
+class Item(models.Model):
+    """An Item represents a package of a specific commodity to be transported within
+        a purchase order. It must belong to one and only one purchase order. """
+
+    PACKAGE_TYPE = (
+        ('PL', 'Pallet'),
+        ('BX', 'Box'),
+        ('BU', 'Bulk'),
+    )
+    WEIGHT_UNIT = (
+        ('LB', 'POUNDS'),
+        ('KG', 'KILOGRAMS'),
+        ('OZ', 'OUNCE')
+    )
+    DIMENSION_UNIT = (
+        ('IN', 'INCHES'),
+        ('FT', 'FEET'),
+        ('YD', 'YARD'),
+        ('MT', 'METER'),
+        ('CM', 'CENTIMETER')
+    )
+
+    part_number = models.CharField(max_length=50, null=True, default=None)
+    commodity = models.CharField(max_length=128)
+    count = models.CharField(validators=[Validators.zero_not_first_integer], max_length=7, default=0)
+    package_type = models.CharField(max_length=2, choices=PACKAGE_TYPE)
+    weight_package_unit = models.CharField(max_length=2, choices=WEIGHT_UNIT)
+    height_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
+    width_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
+    length_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
+    dimension_unit = models.CharField(max_length=2, choices=DIMENSION_UNIT)
+    hazardous = models.BooleanField(default=False)
+    temperature_controlled = models.BooleanField(default=False)
+
+
+
+    def __str__(self):
+        return f"{self.commodity} (purchase_order={self.purchase_order_id}, id={self.id})"

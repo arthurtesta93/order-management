@@ -11,8 +11,8 @@ class Validators:
             )
 
     def zero_not_first_integer(value):
-        form_input = value
-        if form_input[0] == 0:
+        form_input = str(value)
+        if form_input[0] == '0':
             raise ValidationError(
                 _('%(value)s first integer must not be zero'),
                 params={'value': value}
