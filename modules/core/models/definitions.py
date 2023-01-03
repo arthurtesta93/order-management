@@ -102,7 +102,7 @@ class Item(models.Model):
 
     part_number = models.CharField(max_length=50, null=True, default=None)
     commodity = models.CharField(max_length=128)
-    count = models.CharField(validators=[Validators.zero_not_first_integer], max_length=7, default=0)
+    count = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
     package_type = models.CharField(max_length=2, choices=PACKAGE_TYPE)
     weight_package_unit = models.CharField(max_length=2, choices=WEIGHT_UNIT)
     height_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
@@ -111,8 +111,6 @@ class Item(models.Model):
     dimension_unit = models.CharField(max_length=2, choices=DIMENSION_UNIT)
     hazardous = models.BooleanField(default=False)
     temperature_controlled = models.BooleanField(default=False)
-
-
 
     def __str__(self):
         return f"{self.commodity} (purchase_order={self.purchase_order_id}, id={self.id})"

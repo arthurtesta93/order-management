@@ -3,24 +3,26 @@ import logging
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from modules.core.web.serializers import TransactionSerializer, OrganizationSerializer
+from modules.core.web.serializers import OrganizationSerializer
 from modules.order_management.models.definitions import ShippingOrder, PurchaseOrder, Item
 
 
 class PurchaseOrderItemSerializer(serializers.HyperlinkedModelSerializer):
-    content = TransactionSerializer()
 
     class Meta:
         model = Item
         fields = [
-            "purchase_order_id",
+            "part_number",
             "commodity",
             "count",
-            "stackable",
-            "weight",
-            "dimensions",
-            "type",
             "package_type",
+            "weight_package_unit",
+            "height_package_unit",
+            "width_package_unit",
+            "length_package_unit",
+            "dimension_unit",
+            "hazardous",
+            "temperature_controlled"
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
