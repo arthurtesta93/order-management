@@ -2,7 +2,7 @@ import logging
 
 from rest_framework import serializers
 
-from ..models.definitions import Transaction, Organization
+from ..models.definitions import Transaction, Organization, Facility
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,5 +26,12 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
 class OrganizationSimpleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
+        fields = ["id", "name", "url"]
+        read_only_fields = ["id"]
+
+
+class FacilitySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Facility
         fields = ["id", "name", "url"]
         read_only_fields = ["id"]

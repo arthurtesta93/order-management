@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 
-from ..models.definitions import ShippingOrder, PurchaseOrder, Item
+from ..models.definitions import ShippingOrder, PurchaseOrder, ItemInstance
 from ..web.serializers import PurchaseOrderSerializer, PurchaseOrderItemSerializer, ShippingOrderSerializer
 
 
@@ -17,5 +17,5 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
 
 
 class ItemViewSet(viewsets.ModelViewSet):
-    queryset = Item.objects.all().order_by("id")
+    queryset = ItemInstance.objects.all().order_by("id")
     serializer_class = PurchaseOrderItemSerializer
