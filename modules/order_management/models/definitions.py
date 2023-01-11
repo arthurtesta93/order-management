@@ -12,7 +12,7 @@ from modules.core.models.definitions import Transaction, Organization, Item
 class ShippingOrder(Transaction):
     """A shipping order is a statement of intent, between a seller/buyer
      and a logistic provider, to move a one or more items. It contains many purchase orders """
-    # TODO add organization selector
+    # TODO add organizations selector (facility from, facility to, carrier (nullable)
 
     TRANSPORT_TYPE = (
         ('TL', 'Truck Load'),
@@ -29,6 +29,11 @@ class ShippingOrder(Transaction):
     delivery_date = models.DateTimeField(auto_now_add=False)
     reference = models.CharField(max_length=128, default='')
 
+#    ship_from = models.ForeignKey()
+#    ship_to = models.ForeignKey()
+
+#   bill_to = models.ForeignKey()
+
 
 class PurchaseOrder(Transaction):
     """A purchase order is a transaction statement, between a buyer
@@ -37,6 +42,7 @@ class PurchaseOrder(Transaction):
 
     shipping_order_id = models.ForeignKey(ShippingOrder, on_delete=models.SET("N/A"))
     # TODO add params from serializer
+    # buyer / seller
 
     @property
     def total_items(self):
@@ -50,4 +56,5 @@ class ItemInstance(Item):
     purchase_order_id = models.ForeignKey(PurchaseOrder, related_name="items", on_delete=models.SET("N/A"))
     serial_number = models.CharField(max_length=50, null=True, default=None)
     special_instructions = models.CharField(max_length=128, null=True, default=None)
+
 

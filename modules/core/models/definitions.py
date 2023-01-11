@@ -1,15 +1,25 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from enum import Enum, unique
 
-from ..utils import CountryList
+from multiselectfield import MultiSelectField
+
+from ..utils import CountryList, Validators
 
 from ..models.abstractions import BaseModel
 
 # Create your models here.
-from ...order_management.utils import Validators
 
 """Higher level business-related abstractions"""
+
+
+class Contact(BaseModel):
+    first_name = models.CharField(default=None, max_length=30, verbose_name="First Name")
+    last_name = models.CharField(default=None, max_length=30, verbose_name="Last Name")
+    email = models.EmailField(default=None, max_length=40, verbose_name="Email")
+    phone = models.CharField(default=None, max_length=20, verbose_name="Phone")
+    observations = models.CharField(blank=True, null=True, default=None, max_length=128)
 
 
 @unique
@@ -75,7 +85,8 @@ class Organization(BaseModel):
         default=OrganizationKind.UNDEFINED.value,
         verbose_name=_("Kind"),
     )
-    external_contact_name = models.CharField(max_length=120, verbose_name="Contact Name", default=None)  # TODO Create specific model w/ contact information
+    external_contact_name = models.CharField(max_length=120, verbose_name="Contact Name",
+                                             default=None)  # TODO Create specific model w/ contact information
     external_contact_phone = models.CharField
     internal_contact_name = models.CharField(max_length=120,
                                              verbose_name="Account Manager", default=None)  # TODO Create specific model
@@ -125,6 +136,7 @@ class Item(BaseModel):
 class Facility(BaseModel):
     """A facility represents a physical space belonging
         to one and only one organization to serve specific purposes"""
+
     class Meta:
         verbose_name_plural = "facilities"
 
@@ -136,3 +148,34 @@ class Facility(BaseModel):
     city = models.CharField(max_length=20, null=True, default=None)
     state = models.CharField(max_length=20, null=True, default=None)
     country = models.CharField(max_length=20, choices=CountryList.choices())
+
+
+class Storage(Facility):
+    """Facility specialization; a storage is a simple space for managing goods pending shipment.
+    Does not have multiple docks or complex loading / unloading logistic processes"""
+
+    DAYS_OF_WEEK = (
+        ('MON', 'Monday'),
+        ('TUE', 'Tuesday'),
+        ('WED', 'Wednesday'),
+        ('THU', 'Thursday'),
+        ('FRI', 'Friday'),
+        ('SAT', 'Saturday'),
+        ('SUN', 'Sunday')
+    )
+
+    working_hour_start = models.TimeField(auto_now_add=False, default=None)
+    working_hour_end = models.TimeField(auto_now_add=False, default=None)
+    working_days = MultiSelectField(choices=DAYS_OF_WEEK, default=None)
+    refrigerated_storage = models.BooleanField(default=False)
+    drop_trailer = models.BooleanField(default=False)
+    contact = models.ForeignKey(Contact, related_name="Contact", on_delete=models.DO_NOTHING, default=None)
+
+    def clean_end_date(self):
+        start_date = self.working_hour_start
+        end_date = self.working_hour_end
+
+        if end_date <= start_date:
+            raise ValidationError("End date must be later than start date")
+
+        return end_date

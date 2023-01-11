@@ -3,8 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Validators:
-    def validate_comma_separated_integer(value):
-        form_input = str(value)
+    def validate_comma_separated_integer(value, test):
         if value.find('.') != 4:
             raise ValidationError(
                 _('%(value)s decimal point incorrect (e.g. 1234.56)'),
