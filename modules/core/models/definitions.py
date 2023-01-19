@@ -14,14 +14,6 @@ from ..models.abstractions import BaseModel
 """Higher level business-related abstractions"""
 
 
-class Contact(BaseModel):
-    first_name = models.CharField(default=None, max_length=30, verbose_name="First Name")
-    last_name = models.CharField(default=None, max_length=30, verbose_name="Last Name")
-    email = models.EmailField(default=None, max_length=40, verbose_name="Email")
-    phone = models.CharField(default=None, max_length=20, verbose_name="Phone")
-    observations = models.CharField(blank=True, null=True, default=None, max_length=128)
-
-
 @unique
 class TransactionalKind(str, Enum):
     """Defines the transaction type"""
@@ -85,11 +77,7 @@ class Organization(BaseModel):
         default=OrganizationKind.UNDEFINED.value,
         verbose_name=_("Kind"),
     )
-    external_contact_name = models.CharField(max_length=120, verbose_name="Contact Name",
-                                             default=None)  # TODO Create specific model w/ contact information
-    external_contact_phone = models.CharField
-    internal_contact_name = models.CharField(max_length=120,
-                                             verbose_name="Account Manager", default=None)  # TODO Create specific model
+    yearly_revenue = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.name} (kind={self.kind}, id={self.id})"
@@ -133,6 +121,17 @@ class Item(BaseModel):
         return f"{self.commodity} PN#{self.part_number}"
 
 
+class Contact(BaseModel):
+    """"Base model for contacts"""
+
+    first_name = models.CharField(default=None, max_length=30, verbose_name="First Name")
+    last_name = models.CharField(default=None, max_length=30, verbose_name="Last Name")
+    email = models.EmailField(default=None, max_length=40, verbose_name="Email")
+    phone = models.CharField(default=None, max_length=20, verbose_name="Phone")
+    observations = models.CharField(blank=True, null=True, default=None, max_length=128)
+    organization = models.ForeignKey(Organization, null=True, on_delete=models.SET_NULL, default=None)
+
+
 class Facility(BaseModel):
     """A facility represents a physical space belonging
         to one and only one organization to serve specific purposes"""
@@ -148,6 +147,7 @@ class Facility(BaseModel):
     city = models.CharField(max_length=20, null=True, default=None)
     state = models.CharField(max_length=20, null=True, default=None)
     country = models.CharField(max_length=20, choices=CountryList.choices())
+    observations = models.CharField(blank=True, null=True, default=None, max_length=128)
 
 
 class Storage(Facility):
@@ -165,17 +165,44 @@ class Storage(Facility):
     )
 
     working_hour_start = models.TimeField(auto_now_add=False, default=None)
-    working_hour_end = models.TimeField(auto_now_add=False, default=None)
+    working_hour_end = models.TimeField(auto_now_add=False, default=None)  # TODO validation
     working_days = MultiSelectField(choices=DAYS_OF_WEEK, default=None)
     refrigerated_storage = models.BooleanField(default=False)
     drop_trailer = models.BooleanField(default=False)
-    contact = models.ForeignKey(Contact, related_name="Contact", on_delete=models.DO_NOTHING, default=None)
+    dispatch_contact = models.ForeignKey(Contact, related_name="+", on_delete=models.DO_NOTHING,
+                                         default=None)
+    contact = models.ForeignKey(Contact, null=True, related_name="Contact", on_delete=models.DO_NOTHING, default=None)
 
-    def clean_end_date(self):
-        start_date = self.working_hour_start
-        end_date = self.working_hour_end
 
-        if end_date <= start_date:
-            raise ValidationError("End date must be later than start date")
+class CorporateOffice(Facility):
+    class Meta:
+        verbose_name = "Corporate Office"
+        verbose_name_plural = "Corporate Offices"
 
-        return end_date
+    contact = models.ForeignKey(Contact, null=True, related_name="+", on_delete=models.DO_NOTHING, default=None)
+    billable = models.BooleanField(default=True)
+
+
+class Warehouse(Facility):
+    dispatch_contact = models.ForeignKey(Contact, related_name="+", on_delete=models.DO_NOTHING,
+                                         default=None)
+    free_reschedule_enabled = models.BooleanField(default=True)
+    allow_repackaging_until_appointment = models.BooleanField(default=True)
+    time_allowed_for_repackaging_before_appointment = models.TimeField(auto_now_add=False, default=None, null=True,
+                                                                       blank=True)
+    detention_daily_cost = models.IntegerField(default=0)
+
+
+class Dock(models.Model):
+    warehouse = models.ForeignKey(Warehouse, related_name="Warehouse", on_delete=models.DO_NOTHING, default=None)
+    dock_dispatch_contact = models.ForeignKey(Contact, related_name="+", on_delete=models.DO_NOTHING,
+                                              default=None, null=True, blank=True)
+    working_hour_start = models.TimeField(auto_now_add=False, default=None)
+    working_hour_end = models.TimeField(auto_now_add=False, default=None)  # TODO validation
+    working_days = MultiSelectField(choices=Storage.DAYS_OF_WEEK, default=None)
+    refrigerated_cargo = models.BooleanField(default=False)
+    drop_trailer = models.BooleanField(default=False)
+    drayage_enabled = models.BooleanField(default=False)
+    live_load = models.BooleanField(default=True)
+    hazmat = models.BooleanField(default=False)
+

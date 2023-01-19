@@ -4,14 +4,17 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from modules.core.web.serializers import OrganizationSerializer
-from modules.order_management.models.definitions import ShippingOrder, PurchaseOrder, Item
+from modules.order_management.models.definitions import ShippingOrder, PurchaseOrder, ItemInstance
 
 
 class PurchaseOrderItemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = Item
+        model = ItemInstance
         fields = [
+            "purchase_order_id",
+            "serial_number",
+            "special_instructions",
             "part_number",
             "commodity",
             "count",
@@ -34,9 +37,9 @@ class PurchaseOrderSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         items = validated_data.pop("items", [])
-        root = Item.objects.create(**validated_data)
+        root = ItemInstance.objects.create(**validated_data)
         for item in items:
-            Item.objects.create(invoice=root, **item)
+            ItemInstance.objects.create(invoice=root, **item)
         return root
 
     class Meta:
