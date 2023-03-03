@@ -138,9 +138,9 @@ class Facility(BaseModel):
 
     class Meta:
         verbose_name_plural = "facilities"
-
-    organization = models.ForeignKey(Organization, related_name="items", on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=True, default=None)
+
+    organization = models.ForeignKey(Organization, related_name="+", on_delete=models.CASCADE)
     zip_code = models.CharField(max_length=10, null=True, default=None)
     street = models.CharField(max_length=50, null=True, default=None)
     street_number = models.IntegerField(default=0)

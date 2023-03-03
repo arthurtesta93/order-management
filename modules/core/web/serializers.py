@@ -29,7 +29,7 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
-        fields = ["id", "name", "kind", "created_at", "updated_at", "url"]
+        fields = ["id", "name", "kind", "yearly_revenue", "created_at", "updated_at", "url"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 

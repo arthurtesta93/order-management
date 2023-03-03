@@ -44,14 +44,17 @@ class ShippingOrderSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             "mode",
             "date_received",
-            "last_update",
             "pickup_date",
             "delivery_date",
             "reference",
             "carrier",
             "bill_to",
             "ship_from",
-            "ship_to"
+            "ship_to",
+            "shipping_order_status",
+            "url"
         ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
 
 
