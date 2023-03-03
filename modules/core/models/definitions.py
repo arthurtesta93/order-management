@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from enum import Enum, unique
 
-from multiselectfield import MultiSelectField
+#from multiselectfield import MultiSelectField
 
 from ..utils import CountryList, Validators
 
@@ -166,7 +166,7 @@ class Storage(Facility):
 
     working_hour_start = models.TimeField(auto_now_add=False, default=None)
     working_hour_end = models.TimeField(auto_now_add=False, default=None)  # TODO validation
-    working_days = MultiSelectField(choices=DAYS_OF_WEEK, default=None)
+    #working_days = MultiSelectField(choices=DAYS_OF_WEEK, default=None)
     refrigerated_storage = models.BooleanField(default=False)
     drop_trailer = models.BooleanField(default=False)
     dispatch_contact = models.ForeignKey(Contact, related_name="+", on_delete=models.DO_NOTHING,
@@ -199,7 +199,7 @@ class Dock(models.Model):
                                               default=None, null=True, blank=True)
     working_hour_start = models.TimeField(auto_now_add=False, default=None)
     working_hour_end = models.TimeField(auto_now_add=False, default=None)  # TODO validation
-    working_days = MultiSelectField(choices=Storage.DAYS_OF_WEEK, default=None)
+    #working_days = MultiSelectField(choices=Storage.DAYS_OF_WEEK, default=None)
     refrigerated_cargo = models.BooleanField(default=False)
     drop_trailer = models.BooleanField(default=False)
     drayage_enabled = models.BooleanField(default=False)
