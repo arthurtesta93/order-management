@@ -2,3 +2,4 @@ Django~=3.2.2
 djangorestframework~=3.13.1
 dj_database_url
 gunicorn
+psycopg2
