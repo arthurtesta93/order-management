@@ -1,6 +1,6 @@
 Django~=3.2.2
 djangorestframework~=3.13.1
+corsheaders~=3.14.0
 dj_database_url
 gunicorn
 psycopg2
-corsheaders
