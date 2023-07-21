@@ -3,7 +3,6 @@ from rest_framework import routers
 from ..web import views
 
 router = routers.DefaultRouter()
-router.register(r"transactions", views.TransactionViewSet)
 router.register(r"organizations", views.OrganizationViewSet)
 router.register(r"facilities", views.FacilityViewSet)
 router.register(r"items", views.ItemViewSet)

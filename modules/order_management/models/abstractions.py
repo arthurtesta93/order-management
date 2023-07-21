@@ -1,17 +1,16 @@
-from uuid import uuid4
+"""Order management app abstractions"""
 
 from django.db import models
-from django.db.models import Max
 from django.db.models.signals import post_delete
 from django.utils import timezone
 
 """Higher level general abstractions"""
 
 
-class Identifiable(models.Model):
+class OrderManagementIdentifiable(models.Model):
     """Any model that needs to be identifiable by an ID must implement this class"""
 
-    id = models.UUIDField(default=uuid4, primary_key=True)
+    id = models.AutoField(primary_key=True)
 
     class Meta:
         abstract = True
@@ -80,7 +79,7 @@ class SoftDeleteManager(models.Manager):
         return super(SoftDeleteManager, self).get_queryset()
 
 
-class BaseModel(Identifiable, CreatedAndUpdatedAware, DeletedAware):
+class BaseModel(OrderManagementIdentifiable, CreatedAndUpdatedAware, DeletedAware):
     """Any model must extends our base model to make sure it will have the basic fields we need"""
 
     class Meta:

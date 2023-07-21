@@ -4,11 +4,16 @@ from rest_framework import viewsets, generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from ..models.definitions import ShippingOrder, PurchaseOrder, ItemInstance
-from ..web.serializers import PurchaseOrderSerializer, PurchaseOrderItemSerializer, ShippingOrderSerializer
+from ..models.definitions import ShippingOrder, PurchaseOrder, ItemInstance, Transaction
+from ..web.serializers import PurchaseOrderSerializer, PurchaseOrderItemSerializer, ShippingOrderSerializer, \
+    TransactionSerializer
 
 """Shipping Order views"""
 
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all().order_by("id")
+    serializer_class = TransactionSerializer
 
 class ShippingOrderViewSet(viewsets.ModelViewSet):
     queryset = ShippingOrder.objects.all().order_by("id")

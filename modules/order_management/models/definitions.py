@@ -1,14 +1,38 @@
 import syslog
 from decimal import Decimal
+from enum import Enum
 
 from django.db import models
+from django.contrib import admin
 
-from modules.core.models.definitions import Transaction, Organization, Item, Storage, CorporateOffice, Warehouse, \
-    Facility
+from modules.order_management.models.abstractions import BaseModel
+from modules.core.models.definitions import Organization, Facility, Item
 
 # Create your models here.
 
 """Objective business-related entities / models"""
+
+
+class Transaction(BaseModel):
+    """Represents anything that can be transmitted as a logistic service request"""
+
+    TRANSACTION_KIND = (
+        ('INBOUND', 'Inbound'),
+        ('OUTBOUND', 'Outbound')
+    )
+
+    # name = models.CharField(max_length=1024, verbose_name="Name")
+    kind = models.CharField(
+        max_length=1024,
+        choices=TRANSACTION_KIND,
+        null=False,
+        blank=True,
+        default='OUTBOUND',
+        verbose_name="Kind",
+    )
+
+    def __str__(self):
+        return f"(kind={self.kind}, id={self.id})"
 
 
 class ShippingOrder(Transaction):
@@ -46,13 +70,30 @@ class ShippingOrder(Transaction):
     date_received = models.DateTimeField(auto_now_add=True)
     pickup_date = models.DateTimeField(auto_now_add=False)
     delivery_date = models.DateTimeField(auto_now_add=False)
-    reference = models.CharField(max_length=128, default='')
+    customer_reference = models.CharField(max_length=128, default='')
     carrier = models.ForeignKey(Organization, null=True, default=None, related_name="carrier",
                                 on_delete=models.SET_NULL)
     bill_to = models.ForeignKey(Organization, null=True, default=None, related_name="+", on_delete=models.SET_NULL)
     ship_from = models.ForeignKey(Facility, null=True, default=None, related_name="+", on_delete=models.SET_NULL)
     ship_to = models.ForeignKey(Facility, null=True, default=None, related_name="+", on_delete=models.SET_NULL)
     shipping_order_status = models.CharField(choices=SHIPPING_ORDER_STATUS, null=False, default='EMPTY', max_length=14)
+
+    def __str__(self):
+        return f"SO#{self.id} : {self.shipping_order_status}"
+
+    @admin.display(ordering='facility__name', description='Ship From')
+    def get_ship_from(self):
+        return self.ship_from.name
+
+    @admin.display(ordering='facility__name', description='Ship To')
+    def get_ship_to(self):
+        return self.ship_to.name
+
+#    def ship_from(self):
+#        return f"{self.ship_from}"
+#    def pickup_date(self):
+ #       return self.model._default_manager.get_queryset()
+
 
 
 class PurchaseOrder(Transaction):
@@ -72,18 +113,16 @@ class PurchaseOrder(Transaction):
     seller = models.ForeignKey(Organization, null=True, on_delete=models.SET_NULL, related_name="seller")
     purchase_order_status = models.CharField(choices=PURCHASE_ORDER_STATUS, null=False, default='PLANNED', max_length=9)
 
-
-    @property
-    def total_items(self):
-        total = Decimal("0")
-        for item in self.items.all():
-            total += item.total
-        return total
+    def __str__(self):
+        return f"PO#{self.id} : {self.purchase_order_status}"
 
 
-class ItemInstance(Item):
+class ItemInstance(BaseModel):
     """Produced Item abstraction, attributed to a specific purchase order by a seller to be acquired by a buyer"""
-
-    purchase_order_id = models.ForeignKey(PurchaseOrder, related_name="items", on_delete=models.SET("N/A"))
-    serial_number = models.CharField(max_length=50, null=True, default=None)
+    item = models.ForeignKey(Item, related_name="item", on_delete=models.SET("N/A"))
+    quantity = models.IntegerField()
+    purchase_order_id = models.ForeignKey(PurchaseOrder, related_name="purchase-order+", on_delete=models.SET("N/A"))
     special_instructions = models.CharField(max_length=128, null=True, default=None)
+
+    def __str__(self):
+        return f"#{self.id} {self.item.commodity} {self.purchase_order_id}"

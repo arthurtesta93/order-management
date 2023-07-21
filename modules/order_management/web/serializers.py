@@ -1,6 +1,13 @@
 from rest_framework import serializers
 
-from modules.order_management.models.definitions import ShippingOrder, PurchaseOrder, ItemInstance
+from modules.order_management.models.definitions import ShippingOrder, PurchaseOrder, ItemInstance, Transaction
+
+
+class TransactionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ["id", "kind", "created_at", "updated_at", "url"]
+        read_only_fields = ["id", "url", "created_at", "updated_at"]
 
 
 class PurchaseOrderItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -8,19 +15,8 @@ class PurchaseOrderItemSerializer(serializers.HyperlinkedModelSerializer):
         model = ItemInstance
         fields = [
             "purchase_order_id",
-            "serial_number",
             "special_instructions",
-            "part_number",
-            "commodity",
-            "count",
-            "package_type",
-            "weight_package_unit",
-            "height_package_unit",
-            "width_package_unit",
-            "length_package_unit",
-            "dimension_unit",
-            "hazardous",
-            "temperature_controlled"
+            "quantity"
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -35,6 +31,7 @@ class PurchaseOrderSerializer(serializers.HyperlinkedModelSerializer):
             "seller",
             "buyer",
             "items",
+            "purchase_order_status"
         ]
 
 
@@ -46,7 +43,7 @@ class ShippingOrderSerializer(serializers.HyperlinkedModelSerializer):
             "date_received",
             "pickup_date",
             "delivery_date",
-            "reference",
+            "customer_reference",
             "carrier",
             "bill_to",
             "ship_from",
@@ -54,7 +51,7 @@ class ShippingOrderSerializer(serializers.HyperlinkedModelSerializer):
             "shipping_order_status",
             "url"
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "deleted_at"]
 
 
 

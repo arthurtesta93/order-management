@@ -14,35 +14,6 @@ from ..models.abstractions import BaseModel
 """Higher level business-related abstractions"""
 
 
-@unique
-class TransactionalKind(str, Enum):
-    """Defines the transaction type"""
-
-    INBOUND = "INBOUND"
-    OUTBOUND = "OUTBOUND"
-
-    @classmethod
-    def choices(cls):
-        return tuple((i.value, _(i.name.capitalize())) for i in cls)
-
-
-class Transaction(BaseModel):
-    """Represents anything that can be transmitted as a logistic service request"""
-
-    # name = models.CharField(max_length=1024, verbose_name="Name")
-    kind = models.CharField(
-        max_length=1024,
-        choices=TransactionalKind.choices(),
-        null=False,
-        blank=True,
-        default=TransactionalKind.OUTBOUND.value,
-        verbose_name=_("Kind"),
-    )
-
-    def __str__(self):
-        return f"(kind={self.kind}, id={self.id})"
-
-
 class OrganizationKind(str, Enum):
     """Defines the role of an organization in the logistic process"""
 
@@ -110,6 +81,7 @@ class Item(BaseModel):
     count = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
     package_type = models.CharField(max_length=2, choices=PACKAGE_TYPE)
     weight_package_unit = models.CharField(max_length=2, choices=WEIGHT_UNIT)
+    weight = models.CharField(max_length=3)
     height_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
     width_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
     length_package_unit = models.IntegerField(validators=[Validators.zero_not_first_integer], default=0)
@@ -122,6 +94,7 @@ class Item(BaseModel):
 
 
 class Contact(BaseModel):
+
     """"Base model for contacts"""
 
     first_name = models.CharField(default=None, max_length=30, verbose_name="First Name")

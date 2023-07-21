@@ -2,28 +2,18 @@ import logging
 
 from rest_framework import serializers
 
-from ..models.definitions import Item, Transaction, Organization, Facility, CorporateOffice, Storage, Warehouse, Dock, \
+from ..models.definitions import Item, Organization, Facility, CorporateOffice, Storage, Warehouse, Dock, \
     Contact
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Item
-        fields = ["id", "part_number", "commodity", "count", "package_type", "weight_package_unit",
+        fields = ["id", "part_number", "commodity", "count", "package_type", "weight", "weight_package_unit",
                   "height_package_unit", "width_package_unit", "length_package_unit", "dimension_unit",
                   "hazardous", "temperature_controlled"]
         read_only_fields = ["id", "url", "created_at", "updated_at"]
 
-
-class TransactionSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Transaction
-        fields = ["id", "kind", "created_at", "updated_at", "url"]
-        read_only_fields = ["id", "url", "created_at", "updated_at"]
-
-    def _read_only_defaults(self):
-        logging.error(self.context["request"].data)
-        return super(TransactionSerializer, self)._read_only_defaults()
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
