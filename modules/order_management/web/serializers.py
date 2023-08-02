@@ -16,13 +16,13 @@ class PurchaseOrderItemSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             "purchase_order_id",
             "special_instructions",
-            "quantity"
+            "quantity",
+            "item"
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class PurchaseOrderSerializer(serializers.HyperlinkedModelSerializer):
-    items = PurchaseOrderItemSerializer(many=True, allow_null=True, required=False)
 
     class Meta:
         model = PurchaseOrder
@@ -30,7 +30,6 @@ class PurchaseOrderSerializer(serializers.HyperlinkedModelSerializer):
             "shipping_order_id",
             "seller",
             "buyer",
-            "items",
             "purchase_order_status"
         ]
 

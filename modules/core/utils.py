@@ -4,30 +4,45 @@ from django.utils.translation import gettext_lazy as _
 from enum import Enum
 
 
+def default_days_week():
+    return dict(
+        [
+            (day, False)
+            for day in [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
+        ]
+    )
+
+
 class DaysOfWeek(str, Enum):
-    """"weekdays enum"""
+    """Defines the days of the week"""
 
-    MON = "Monday"
+    MONDAY = "Monday"
 
-    TUE = "Tuesday"
+    TUESDAY = "Tuesday"
 
-    WED = "Wednesday"
+    WEDNESDAY = "Wednesday"
 
-    THU = "Thursday"
+    THURSDAY = "Thursday"
 
-    FRI = "Friday"
+    FRIDAY = "Friday"
 
-    SAT = "Saturday"
+    SATURDAY = "Saturday"
 
-    SUN = "Sunday"
+    SUNDAY = "Sunday"
 
     @classmethod
     def choices(cls):
-        return tuple((i.value, _(i.value.capitalize())) for i in cls)
-
+        return tuple((i.value, _(i.name.capitalize())) for i in cls)
 
 class CountryList(str, Enum):
-    """Defines the role of an organization in the logistic process"""
 
     USA = "UNITED STATES"
 

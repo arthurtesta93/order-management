@@ -2,6 +2,25 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 
+
+def default_days_week():
+    return dict(
+        [
+            (day, False)
+            for day in [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
+        ]
+    )
+
+
+
 class Validators:
     def validate_comma_separated_integer(value, test):
         if value.find('.') != 4:

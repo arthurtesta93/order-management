@@ -7,7 +7,6 @@ from django.utils import timezone
 
 """Higher level general abstractions"""
 
-
 class Identifiable(models.Model):
     """Any model that needs to be identifiable by an ID must implement this class"""
 

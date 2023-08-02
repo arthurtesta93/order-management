@@ -28,8 +28,9 @@ router.register(r'groups', views.GroupViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
+
+
 urlpatterns = [
-    path('', include(router.urls)),
     path(r"admin/", admin.site.urls),
     path(r"api/core/", include(modules.core.web.urls.router.urls)),
     path(r"api/order-management/", include(modules.order_management.web.urls.router.urls)),

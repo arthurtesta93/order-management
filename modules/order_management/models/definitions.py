@@ -78,6 +78,13 @@ class ShippingOrder(Transaction):
     ship_to = models.ForeignKey(Facility, null=True, default=None, related_name="+", on_delete=models.SET_NULL)
     shipping_order_status = models.CharField(choices=SHIPPING_ORDER_STATUS, null=False, default='EMPTY', max_length=14)
 
+    @classmethod
+    def create(cls, *args, **kwargs):
+        """Create a new ShippingOrder instance"""
+        shipping_order = cls(*args, **kwargs)
+        shipping_order.save()
+        return shipping_order
+
     def __str__(self):
         return f"SO#{self.id} : {self.shipping_order_status}"
 
@@ -88,12 +95,6 @@ class ShippingOrder(Transaction):
     @admin.display(ordering='facility__name', description='Ship To')
     def get_ship_to(self):
         return self.ship_to.name
-
-#    def ship_from(self):
-#        return f"{self.ship_from}"
-#    def pickup_date(self):
- #       return self.model._default_manager.get_queryset()
-
 
 
 class PurchaseOrder(Transaction):
@@ -116,6 +117,24 @@ class PurchaseOrder(Transaction):
     def __str__(self):
         return f"PO#{self.id} : {self.purchase_order_status}"
 
+    def check_shipping_order_status(self):
+        syslog.syslog(syslog.LOG_INFO, f"Shipping order status: {self.shipping_order_id.shipping_order_status}")
+        if self.shipping_order_id.shipping_order_status == 'EMPTY':
+            self.shipping_order_id.shipping_order_status = 'PROCESSED'
+            self.shipping_order_id.save()
+
+    def save(self, *args, **kwargs):
+        self.check_shipping_order_status()
+        super(PurchaseOrder, self).save(*args, **kwargs)
+
+    @admin.display(ordering='buyer__id', description='Buyer')
+    def get_buyer(self):
+        return self.buyer.name
+
+    @admin.display(ordering='seller_id', description='Seller')
+    def get_seller(self):
+        return self.seller.name
+
 
 class ItemInstance(BaseModel):
     """Produced Item abstraction, attributed to a specific purchase order by a seller to be acquired by a buyer"""
@@ -125,4 +144,18 @@ class ItemInstance(BaseModel):
     special_instructions = models.CharField(max_length=128, null=True, default=None)
 
     def __str__(self):
-        return f"#{self.id} {self.item.commodity} {self.purchase_order_id}"
+        return f"# {self.item.commodity} {self.id} {self.purchase_order_id}"
+
+    def check_purchase_order_status(self):
+        syslog.syslog(syslog.LOG_INFO, f"Purchase order status: {self.purchase_order_id.purchase_order_status}")
+        if self.purchase_order_id.purchase_order_status == 'PLANNED':
+            self.purchase_order_id.purchase_order_status = 'PRODUCED'
+            self.purchase_order_id.save()
+
+    def save(self, *args, **kwargs):
+        self.check_purchase_order_status()
+        super(ItemInstance, self).save(*args, **kwargs)
+
+    @admin.display(ordering='item__commodity', description='Item')
+    def get_commodity(self):
+        return self.item.commodity

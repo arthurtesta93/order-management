@@ -2,8 +2,16 @@ import logging
 
 from rest_framework import serializers
 
-from ..models.definitions import Item, Organization, Facility, CorporateOffice, Storage, Warehouse, Dock, \
+from ..models.definitions import Item, Organization, Facility, CorporateOffice, Warehouse, Dock, \
     Contact
+
+
+class ContactSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ["first_name", "last_name", "email", "phone", "organization", "observations"]
+
+        read_only_fields = ["id", "url", "created_at", "updated_at"]
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -13,7 +21,6 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
                   "height_package_unit", "width_package_unit", "length_package_unit", "dimension_unit",
                   "hazardous", "temperature_controlled"]
         read_only_fields = ["id", "url", "created_at", "updated_at"]
-
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,7 +33,8 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
 class FacilitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Facility
-        fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number", "city", "state",
+        fields = ["id", "organization", "working_days", "name", "url", "zip_code", "street", "street_number", "city",
+                  "state",
                   "country", "observations"]
         read_only_fields = ["id"]
 
@@ -45,23 +53,15 @@ class WarehouseSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number", "city", "state",
                   "country", "observations", "dispatch_contact", "free_reschedule_enabled",
                   "allow_repackaging_until_appointment", "time_allowed_for_repackaging_before_appointment",
-                  "detention_daily_cost"]
-        read_only_fields = ["id"]
-
-
-class StorageSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Storage
-        fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number", "city", "state",
-                  "country", "observations", "working_hour_start", "working_hour_end", "working_days",
-                  "refrigerated_storage", "drop_trailer", "dispatch_contact", "contact"]
+                  "detention_daily_cost", "warehouse_label"]
         read_only_fields = ["id"]
 
 
 class DockSerializer(serializers.HyperlinkedModelSerializer):
+    dock_dispatch_contact = ContactSerializer(required=False)  # <- Need to make iterable
+
     class Meta:
         model = Dock
-        fields = ["warehouse", "dock_dispatch_contact", "working_hour_start", "working_hour_end", "working_days",
-                  "refrigerated_cargo", "drop_trailer", "drayage_enabled", "live_load", "hazmat"]
-
-
+        fields = ["warehouse", "dock_dispatch_contact", "refrigerated_cargo", "drop_trailer",
+                  "refrigerated_cargo", "drayage_enabled", "live_load", "hazmat"]
+#        depth = 1
