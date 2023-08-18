@@ -47,13 +47,6 @@ class ShippingOrder(Transaction):
         ('DRAYAGE', 'Drayage')
     )
 
-    FACILITY_TYPE = (
-        ('STORAGE', 'Storage'),
-        ('CORPORATE', 'Corporate Office'),
-        ('WAREHOUSE', 'Warehouse'),
-        ('FACILITY', 'Facility'),  # Generic
-    )
-
     SHIPPING_ORDER_STATUS = (
         ('EMPTY', 'Empty'),
         ('PROCESSED', 'Processed'),
@@ -64,7 +57,6 @@ class ShippingOrder(Transaction):
         ('INVOICED', 'Invoiced')
     )
 
-    facility_type = models.CharField(choices=FACILITY_TYPE, null=False, default='WAREHOUSE', max_length=10)
 
     mode = models.CharField(choices=TRANSPORT_TYPE, null=True, default=None, max_length=7)
     date_received = models.DateTimeField(auto_now_add=True)
@@ -141,7 +133,7 @@ class ItemInstance(BaseModel):
     item = models.ForeignKey(Item, related_name="item", on_delete=models.SET("N/A"))
     quantity = models.IntegerField()
     purchase_order_id = models.ForeignKey(PurchaseOrder, related_name="purchase-order+", on_delete=models.SET("N/A"))
-    special_instructions = models.CharField(max_length=128, null=True, default=None)
+    special_instructions = models.CharField(max_length=128, null=True, default=None, blank=True)
 
     def __str__(self):
         return f"# {self.item.commodity} {self.id} {self.purchase_order_id}"

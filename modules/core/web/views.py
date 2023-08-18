@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from rest_framework import viewsets
 
 from ..models.definitions import Organization, Facility, Item, CorporateOffice, Warehouse, Dock, Contact
@@ -12,16 +10,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
 
 
-class ContactSearchViewSet(viewsets.ModelViewSet):
-    queryset = Contact.objects.all().order_by("first_name")
-    serializer_class = ContactSerializer
-
-    def get_queryset(self):
-        first_name = self.request.query_params.get("first_name", None)
-        if first_name is not None:
-            return Contact.objects.filter(first_name=first_name)
-        return Contact.objects.all()
-
+# view that filters contact by organization id
 
 class ContactSearchByOrganizationViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all().order_by("first_name")
@@ -55,6 +44,8 @@ class FacilitySearchByOrganizationViewSet(viewsets.ModelViewSet):
         return Facility.objects.all()
 
 
+# viewset for searching facilities by zip code
+
 class FacilitySearchByZipCodeViewSet(viewsets.ModelViewSet):
     queryset = Facility.objects.all().order_by("id")
     serializer_class = FacilitySerializer
@@ -71,6 +62,8 @@ class ItemViewSet(viewsets.ModelViewSet):
     serializer_class = ItemSerializer
 
 
+# query purchase orders that contain a specific item, by item id
+
 class CorporateOfficeViewSet(viewsets.ModelViewSet):
     queryset = CorporateOffice.objects.all().order_by("id")
     serializer_class = CorporateOfficeSerializer
@@ -81,10 +74,25 @@ class WarehouseViewSet(viewsets.ModelViewSet):
     serializer_class = WarehouseSerializer
 
 
+# view to filter warehouse by organization id
+
+class WarehouseSearchByOrganizationViewSet(viewsets.ModelViewSet):
+    queryset = Warehouse.objects.all().order_by("id")
+    serializer_class = WarehouseSerializer
+
+    def get_queryset(self):
+        organization = self.request.query_params.get("organization", None)
+        if organization is not None:
+            return Warehouse.objects.filter(organization=organization)
+        return Warehouse.objects.all()
+
+
 class DockViewSet(viewsets.ModelViewSet):
     queryset = Dock.objects.all().order_by("id")
     serializer_class = DockSerializer
 
+
+# view to filter dock by warehouse id
 
 class DockSearchByWarehouseViewSet(viewsets.ModelViewSet):
     queryset = Dock.objects.all().order_by("id")
@@ -95,5 +103,3 @@ class DockSearchByWarehouseViewSet(viewsets.ModelViewSet):
         if warehouse is not None:
             return Dock.objects.filter(warehouse=warehouse)
         return Dock.objects.all()
-
-

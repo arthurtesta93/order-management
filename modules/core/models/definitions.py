@@ -170,8 +170,7 @@ class Warehouse(Facility):
 
     @admin.display(ordering='dispatch_contact__name', description='Dispatch Contact')
     def get_dispatch_contact(self):
-        return self.dispatch_contact.first_name
-
+        return self.dispatch_contact.first_name + " " + self.dispatch_contact.last_name
 
 class Dock(models.Model):
     warehouse = models.ForeignKey(Warehouse, related_name="Warehouse", on_delete=models.DO_NOTHING, default=None)

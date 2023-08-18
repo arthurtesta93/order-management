@@ -22,6 +22,24 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
                   "hazardous", "temperature_controlled"]
         read_only_fields = ["id", "url", "created_at", "updated_at"]
 
+    def validate(self, data):
+        if data["weight"] <= "0":
+            raise serializers.ValidationError("Weight must be greater than 0")
+        if data["count"] <= 0:
+            raise serializers.ValidationError("Count must be greater than 0")
+        if data["height_package_unit"] <= 0:
+            raise serializers.ValidationError("Height must be greater than 0")
+        if data["width_package_unit"] <= 0:
+            raise serializers.ValidationError("Width must be greater than 0")
+        if data["length_package_unit"] <= 0:
+            raise serializers.ValidationError("Length must be greater than 0")
+        if data["part_number"] == "":
+            raise serializers.ValidationError("Part Number cannot be empty")
+        if data["commodity"] == "":
+            raise serializers.ValidationError("Commodity cannot be empty")
+
+        return data
+
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -33,17 +51,16 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
 class FacilitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Facility
-        fields = ["id", "organization", "working_days", "name", "url", "zip_code", "street", "street_number", "city",
-                  "state",
-                  "country", "observations"]
+        fields = ["id", "organization", "working_days", "name", "url", "zip_code",
+                  "street", "street_number", "city", "state", "country", "observations"]
         read_only_fields = ["id"]
 
 
 class CorporateOfficeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CorporateOffice
-        fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number", "city", "state",
-                  "country", "observations", "contact", "billable"]
+        fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number",
+                  "city", "state", "country", "observations", "contact", "billable"]
         read_only_fields = ["id"]
 
 
@@ -56,12 +73,18 @@ class WarehouseSerializer(serializers.HyperlinkedModelSerializer):
                   "detention_daily_cost", "warehouse_label"]
         read_only_fields = ["id"]
 
+    def validate(self, data):
+        if data["allow_repackaging_until_appointment"] and \
+                data["time_allowed_for_repackaging_before_appointment"] is None:
+            raise serializers.ValidationError("If repackaging is allowed, a time must be specified")
+
 
 class DockSerializer(serializers.HyperlinkedModelSerializer):
-    dock_dispatch_contact = ContactSerializer(required=False)  # <- Need to make iterable
+    dock_dispatch_contact = Contact()  # <- Need to make iterable
 
     class Meta:
         model = Dock
-        fields = ["warehouse", "dock_dispatch_contact", "refrigerated_cargo", "drop_trailer",
-                  "refrigerated_cargo", "drayage_enabled", "live_load", "hazmat"]
+        fields = ["warehouse", "dock_dispatch_contact", "appointment_slot_time_hours",
+                  "dock_label", "drop_trailer", "refrigerated_cargo",
+                  "drayage_enabled", "live_load", "hazmat"]
 #        depth = 1
