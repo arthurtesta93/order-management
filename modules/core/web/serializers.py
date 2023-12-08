@@ -9,17 +9,28 @@ from ..models.definitions import Item, Organization, Facility, CorporateOffice, 
 class ContactSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Contact
-        fields = ["first_name", "last_name", "email", "phone", "organization", "observations"]
+        fields = '__all__'
 
         read_only_fields = ["id", "url", "created_at", "updated_at"]
+
+    def validate(self, data):
+        if data["first_name"] == "":
+            raise serializers.ValidationError("First name cannot be empty")
+        if data["last_name"] == "":
+            raise serializers.ValidationError("Last name cannot be empty")
+        if data["email"] == "":
+            raise serializers.ValidationError("Email cannot be empty")
+        if data["phone"] == "":
+            raise serializers.ValidationError("Phone cannot be empty")
+        if data["organization"] == "":
+            raise serializers.ValidationError("Organization cannot be empty")
+        return data
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Item
-        fields = ["id", "part_number", "commodity", "count", "package_type", "weight", "weight_package_unit",
-                  "height_package_unit", "width_package_unit", "length_package_unit", "dimension_unit",
-                  "hazardous", "temperature_controlled"]
+        fields = '__all__'
         read_only_fields = ["id", "url", "created_at", "updated_at"]
 
     def validate(self, data):
@@ -51,26 +62,40 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
 class FacilitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Facility
-        fields = ["id", "organization", "working_days", "name", "url", "zip_code",
-                  "street", "street_number", "city", "state", "country", "observations"]
+        fields = '__all__'
         read_only_fields = ["id"]
+
+    def validate(self, data):
+        if data["name"] == "":
+            raise serializers.ValidationError("Name cannot be empty")
+        if data["zip_code"] == "":
+            raise serializers.ValidationError("Zip code cannot be empty")
+        if data["street"] == "":
+            raise serializers.ValidationError("Street cannot be empty")
+        if data["street_number"] <= 0:
+            raise serializers.ValidationError("Street number must be greater than 0")
+        if data["city"] == "":
+            raise serializers.ValidationError("City cannot be empty")
+        if data["state"] == "":
+            raise serializers.ValidationError("State cannot be empty")
+        if data["country"] == "":
+            raise serializers.ValidationError("Country cannot be empty")
+        if data['working_days'] is None:
+            raise serializers.ValidationError("Working days cannot be empty")
+        return data
 
 
 class CorporateOfficeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CorporateOffice
-        fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number",
-                  "city", "state", "country", "observations", "contact", "billable"]
+        fields = '__all__'
         read_only_fields = ["id"]
 
 
 class WarehouseSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Warehouse
-        fields = ["id", "organization", "name", "url", "zip_code", "street", "street_number", "city", "state",
-                  "country", "observations", "dispatch_contact", "free_reschedule_enabled",
-                  "allow_repackaging_until_appointment", "time_allowed_for_repackaging_before_appointment",
-                  "detention_daily_cost", "warehouse_label"]
+        fields = '__all__'
         read_only_fields = ["id"]
 
     def validate(self, data):
@@ -84,7 +109,12 @@ class DockSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Dock
-        fields = ["warehouse", "dock_dispatch_contact", "appointment_slot_time_hours",
-                  "dock_label", "drop_trailer", "refrigerated_cargo",
-                  "drayage_enabled", "live_load", "hazmat"]
-#        depth = 1
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    def validate(self, data):
+        if data["appointment_slot_time_hours"] <= 0:
+            raise serializers.ValidationError("Appointment slot time must be greater than 0")
+        if data["dock_label"] == "":
+            raise serializers.ValidationError("Dock label cannot be empty")
+        return data

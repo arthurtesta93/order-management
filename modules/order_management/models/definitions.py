@@ -109,7 +109,8 @@ class PurchaseOrder(Transaction):
     def __str__(self):
         return f"PO#{self.id} : {self.purchase_order_status}"
 
-    def check_shipping_order_status(self):
+    #TODO - we are accessing the shipping order status here, but we should be calling a function on the shipping order
+    def check_shipping_order_status(self) -> None:
         syslog.syslog(syslog.LOG_INFO, f"Shipping order status: {self.shipping_order_id.shipping_order_status}")
         if self.shipping_order_id.shipping_order_status == 'EMPTY':
             self.shipping_order_id.shipping_order_status = 'PROCESSED'
@@ -138,6 +139,7 @@ class ItemInstance(BaseModel):
     def __str__(self):
         return f"# {self.item.commodity} {self.id} {self.purchase_order_id}"
 
+    #TODO - we are accessing the purchase order status here, but we should be calling a function on the purchase order
     def check_purchase_order_status(self):
         syslog.syslog(syslog.LOG_INFO, f"Purchase order status: {self.purchase_order_id.purchase_order_status}")
         if self.purchase_order_id.purchase_order_status == 'PLANNED':

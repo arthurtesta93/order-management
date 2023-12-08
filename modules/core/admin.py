@@ -28,6 +28,8 @@ class ContactAdmin(admin.ModelAdmin):
 class WarehouseAdmin(admin.ModelAdmin):
     list_display = ["get_dispatch_contact", "organization", "city", "state", "observations"]
 
-
 admin.site.register(CorporateOffice)
-admin.site.register(Dock)
+
+@admin.register(Dock)
+class DockAdmin(admin.ModelAdmin):
+    list_display = ["id", "dock_label", "get_warehouse_city", "get_dispatch_contact", "refrigerated_cargo", "drop_trailer", "drayage_enabled"]

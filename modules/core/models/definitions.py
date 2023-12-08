@@ -141,6 +141,7 @@ class Facility(BaseModel):
 
     def get_contact_number(self):
         return self.contact.phone
+
     @admin.display(ordering='contact__name', description='Contact')
     def get_contact(self):
         return self.contact.first_name
@@ -160,7 +161,6 @@ class CorporateOffice(Facility):
 
 
 class Warehouse(Facility):
-
     free_reschedule_enabled = models.BooleanField(default=True)
     allow_repackaging_until_appointment = models.BooleanField(default=True)
     time_allowed_for_repackaging_before_appointment = models.TimeField(auto_now_add=False, default=None, null=True,
@@ -171,6 +171,7 @@ class Warehouse(Facility):
     @admin.display(ordering='dispatch_contact__name', description='Dispatch Contact')
     def get_dispatch_contact(self):
         return self.dispatch_contact.first_name + " " + self.dispatch_contact.last_name
+
 
 class Dock(models.Model):
     warehouse = models.ForeignKey(Warehouse, related_name="Warehouse", on_delete=models.DO_NOTHING, default=None)
@@ -184,3 +185,13 @@ class Dock(models.Model):
     lumper_required = models.BooleanField(default=False)
     appointment_slot_time_hours = models.FloatField(default=0)
     dock_label = models.CharField(max_length=10, null=True, default=None)
+
+    @admin.display(ordering='warehouse__city', description='Warehouse City')
+    def get_warehouse_city(self):
+        return self.warehouse.city
+
+    @admin.display(ordering='dock_dispatch_contact__name', description='Dispatch Contact')
+    def get_dispatch_contact(self):
+        if (self.dock_dispatch_contact is None):
+            return ("None")
+        return self.dock_dispatch_contact.first_name + " " + self.dock_dispatch_contact.last_name
