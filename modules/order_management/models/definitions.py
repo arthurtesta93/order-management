@@ -57,7 +57,6 @@ class ShippingOrder(Transaction):
         ('INVOICED', 'Invoiced')
     )
 
-
     mode = models.CharField(choices=TRANSPORT_TYPE, null=True, default=None, max_length=7)
     date_received = models.DateTimeField(auto_now_add=True)
     pickup_date = models.DateTimeField(auto_now_add=False)
@@ -88,6 +87,10 @@ class ShippingOrder(Transaction):
     def get_ship_to(self):
         return self.ship_to.name
 
+    def update_shipping_order_status(self, status):
+        self.shipping_order_status = status
+        self.save()
+
 
 class PurchaseOrder(Transaction):
     """A purchase order is a transaction statement, between a buyer
@@ -96,8 +99,8 @@ class PurchaseOrder(Transaction):
 
     PURCHASE_ORDER_STATUS = (
         ('PLANNED', 'Planned'),
-        ('PRODUCED', 'Processing'),
-        ('PICKED', 'Packed'),
+        ('PROCESSED', 'Processed'),
+        ('PACKED', 'Packed'),
         ('PLACED', 'Placed'),
     )
 
@@ -109,7 +112,7 @@ class PurchaseOrder(Transaction):
     def __str__(self):
         return f"PO#{self.id} : {self.purchase_order_status}"
 
-    #TODO - we are accessing the shipping order status here, but we should be calling a function on the shipping order
+    # TODO - we are accessing the shipping order status here, but we should be calling a function on the shipping order
     def check_shipping_order_status(self) -> None:
         syslog.syslog(syslog.LOG_INFO, f"Shipping order status: {self.shipping_order_id.shipping_order_status}")
         if self.shipping_order_id.shipping_order_status == 'EMPTY':
@@ -128,6 +131,16 @@ class PurchaseOrder(Transaction):
     def get_seller(self):
         return self.seller.name
 
+    def update_order_status(self, status):
+        print(f"Updating purchase order status to {status}")
+
+        if status in [x[0] for x in self.PURCHASE_ORDER_STATUS]:
+            self.purchase_order_status = status
+            self.save()
+        else:
+            raise ValueError(
+                f"Invalid purchase order status: {status}. Must be one of {PurchaseOrder.PURCHASE_ORDER_STATUS}")
+
 
 class ItemInstance(BaseModel):
     """Produced Item abstraction, attributed to a specific purchase order by a seller to be acquired by a buyer"""
@@ -139,7 +152,7 @@ class ItemInstance(BaseModel):
     def __str__(self):
         return f"# {self.item.commodity} {self.id} {self.purchase_order_id}"
 
-    #TODO - we are accessing the purchase order status here, but we should be calling a function on the purchase order
+    # TODO - we are accessing the purchase order status here, but we should be calling a function on the purchase order
     def check_purchase_order_status(self):
         syslog.syslog(syslog.LOG_INFO, f"Purchase order status: {self.purchase_order_id.purchase_order_status}")
         if self.purchase_order_id.purchase_order_status == 'PLANNED':
